@@ -24,7 +24,7 @@ jobs:
         uses: xygeni/xygeni-action@v3.2.0
         id: Xygeni-Scanner
         with:
-          command: scan --run="sast,deps" -n "PruebaGithubXmart"
+          command: scan --run="sast,deps" -n "PruebaGithubXmart" --audit-project
           xygeni_url: https://api.xygeni.io
           token: ${{ secrets.XYGENI_TOKEN }}
           gh_token: ${{ secrets.PAT_FOR_XYGENI_SCAN }}
