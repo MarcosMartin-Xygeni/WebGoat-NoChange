@@ -26,9 +26,7 @@ jobs:
       - name: Download scanner
         run: |
           set -euo pipefail
-
-          curl -sLO https://get.xygeni.io/latest/scanner/xygeni-release.zip -o xygeni_scanner.zip
-
+          curl -sL https://get.xygeni.io/latest/scanner/xygeni-release.zip -o xygeni_scanner.zip
           ls -lh xygeni_scanner.zip
           unzip -t xygeni_scanner.zip
 
