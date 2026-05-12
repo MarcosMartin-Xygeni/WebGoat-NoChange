@@ -1,4 +1,4 @@
-name: Xygeni Scan
+name: Xygeni Scan updated yml
 on:
   workflow_dispatch:  # Allows manual triggering
   # no push triggers
