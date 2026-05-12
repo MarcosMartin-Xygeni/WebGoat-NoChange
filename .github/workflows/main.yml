@@ -1,14 +1,17 @@
 name: Xygeni Scan updated yml
+
 on:
-  workflow_dispatch:  # Allows manual triggering
-  # no push triggers
-  # no pull request triggers
-  # no schedule triggers
+  workflow_dispatch:
 
 jobs:
   xygeni-scan:
     name: Xygeni Scan
     runs-on: ubuntu-latest
+
+    env:
+      XYGENI_TOKEN: ${{ secrets.XYGENI_TOKEN }}
+      XYGENI_URL: https://api.xygeni.io
+
     steps:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -18,13 +21,37 @@ jobs:
 
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for better relevancy of analysis
+          fetch-depth: 0
+
+      - name: Download scanner
+        run: |
+          set -euo pipefail
+
+          curl -sLO https://get.xygeni.io/latest/scanner/xygeni-release.zip -o xygeni_scaner.zip
+
+          ls -lh xygeni_scanner.zip
+          unzip -t xygeni_scanner.zip
+
+      - name: Unzip scanner
+        run: |
+          set -euo pipefail
+          unzip -o xygeni_scanner.zip
+
+      - name: Make scanner executable
+        run: |
+          set -euo pipefail
+          chmod +x xygeni_scanner/xygeni
+          ls -l xygeni_scanner/xygeni
+
+      - name: Copy xygeni.secrets.yml
+        run: |
+          set -euo pipefail
+          mkdir -p ./xygeni_scanner/conf
+          cp .github/workflows/xygeni.secrets.yml ./xygeni_scanner/conf/xygeni.secrets.yml
+          ls -l ./xygeni_scanner/conf/
 
       - name: Xygeni-Scanner
-        uses: xygeni/xygeni-action@v3.2.0
         id: Xygeni-Scanner
-        with:
-          command: scan --run="sast,deps" -n "PruebaGithubXmart"  --auto-remediate
-          xygeni_url: https://api.xygeni.io
-          token: ${{ secrets.XYGENI_TOKEN }}
-          gh_token: ${{ secrets.PAT_FOR_XYGENI_SCAN }}
+        run: |
+          set -euo pipefail
+          ./xygeni_scanner/xygeni scan -n "${{ github.repository }}" -d "${GITHUB_WORKSPACE}"
