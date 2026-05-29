@@ -5,6 +5,7 @@ on:
 
 env:
   XYGENI_URL: https://get.xygeni.io/latest/scanner/xygeni-release.zip
+  ARTIFACT_NAME: xygeni-release.zip        # ← esto faltaba en el env
   JFROG_URL: https://xygenitrial.jfrog.io/artifactory
   JFROG_REPO: xygeni-scanner-local
   JFROG_TARGET_PATH: scanner/
