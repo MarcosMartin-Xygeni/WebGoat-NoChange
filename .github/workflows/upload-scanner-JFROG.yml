@@ -32,7 +32,6 @@ jobs:
 
       - name: Upload to JFrog Artifactory
         env:
-          JFROG_URL: ${{ secrets.JFROG_URL }}           # e.g. https://mycompany.jfrog.io/artifactory
           JFROG_USER: ${{ secrets.JFROG_USER }}
           JFROG_API_KEY: ${{ secrets.JFROG_API_KEY }}   # o JFROG_TOKEN si usas token de identidad
         run: |
