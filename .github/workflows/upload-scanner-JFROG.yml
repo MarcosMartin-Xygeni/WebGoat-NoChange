@@ -1,0 +1,60 @@
+name: Download Xygeni & Upload to JFrog
+
+on:
+  workflow_dispatch:
+
+env:
+  XYGENI_URL: https://get.xygeni.io/latest/scanner/xygeni-release.zip
+  JFROG_URL: https://xygenitrial.jfrog.io/artifactory
+  JFROG_REPO: xygeni-scanner-local
+  JFROG_TARGET_PATH: scanner/
+  
+jobs:
+  download-and-upload:
+    name: Download Xygeni → Upload to JFrog
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Xygeni artifact
+        run: |
+          echo "Downloading $ARTIFACT_NAME from Xygeni..."
+          curl -fsSL "$XYGENI_URL" -o "$ARTIFACT_NAME"
+          echo "Download complete. File size: $(du -sh $ARTIFACT_NAME | cut -f1)"
+
+      - name: Verify download
+        run: |
+          if [ ! -f "$ARTIFACT_NAME" ]; then
+            echo "ERROR: Artifact not found after download."
+            exit 1
+          fi
+          echo "SHA256: $(sha256sum $ARTIFACT_NAME)"
+
+      - name: Upload to JFrog Artifactory
+        env:
+          JFROG_URL: ${{ secrets.JFROG_URL }}           # e.g. https://mycompany.jfrog.io/artifactory
+          JFROG_USER: ${{ secrets.JFROG_USER }}
+          JFROG_API_KEY: ${{ secrets.JFROG_API_KEY }}   # o JFROG_TOKEN si usas token de identidad
+        run: |
+          echo "Uploading $ARTIFACT_NAME to JFrog..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -u "$JFROG_USER:$JFROG_API_KEY" \
+            -T "$ARTIFACT_NAME" \
+            "$JFROG_URL/$JFROG_REPO/$JFROG_TARGET_PATH$ARTIFACT_NAME")
+
+          echo "HTTP status: $HTTP_STATUS"
+
+          if [[ "$HTTP_STATUS" -ne 201 && "$HTTP_STATUS" -ne 200 ]]; then
+            echo "ERROR: Upload failed with HTTP $HTTP_STATUS"
+            exit 1
+          fi
+
+          echo "Upload successful!"
+
+      - name: Summary
+        run: |
+          echo "### ✅ Pipeline completado" >> $GITHUB_STEP_SUMMARY
+          echo "| Campo | Valor |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Artefacto | \`$ARTIFACT_NAME\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Destino | \`$JFROG_REPO/$JFROG_TARGET_PATH\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| SHA256 | \`$(sha256sum $ARTIFACT_NAME | cut -d' ' -f1)\` |" >> $GITHUB_STEP_SUMMARY
