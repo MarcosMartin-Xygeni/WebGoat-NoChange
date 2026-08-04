@@ -21,9 +21,9 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for better relevancy of analysis
 
       - name: Xygeni-Scanner
-        uses: xygeni/xygeni-action@v3.2.0
+        uses: xygeni/xygeni-action@13c6ed2797df7d85749864e2cbcf09c893f43b23  # v6.4.0
         id: Xygeni-Scanner
         with:
           xygeni_url: https://api.xygeni.io
           token: ${{ secrets.XYGENI_TOKEN }}
-          gh_token: ${{ secrets.PAT_FOR_XYGENI_SCAN }}
+          command: scan -n ${{ github.repository }} -d ${{ github.workspace }}
