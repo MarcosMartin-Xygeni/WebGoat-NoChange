@@ -1,0 +1,39 @@
+name: Xygeni Scan (With Zip Download)
+on:
+  workflow_dispatch:
+jobs:
+  xygeni-scan:
+    name: Xygeni Scan
+    runs-on: ubuntu-latest
+    env:
+      XYGENI_TOKEN: ${{ secrets.XYGENI_TOKEN }}
+      XYGENI_URL: https://api.xygeni.io
+    steps:
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Download scanner
+        run: |
+          set -euo pipefail
+          curl -sL https://get.xygeni.io/latest/scanner/xygeni-release.zip -o xygeni_scanner.zip
+          ls -lh xygeni_scanner.zip
+          unzip -t xygeni_scanner.zip
+      - name: Unzip scanner
+        run: |
+          set -euo pipefail
+          unzip -o xygeni_scanner.zip
+      - name: Make scanner executable
+        run: |
+          set -euo pipefail
+          chmod +x xygeni_scanner/xygeni
+          ls -l xygeni_scanner/xygeni
+      - name: Xygeni-Scanner
+        id: Xygeni-Scanner
+        run: |
+          set -euo pipefail
+          ./xygeni_scanner/xygeni scan -n "${{ github.repository }}" -d "${GITHUB_WORKSPACE}"
